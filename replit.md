@@ -1,6 +1,6 @@
 # Overview
 
-This is a professional fintech application for business customers, inspired by Revolut but with enhanced UX and modern technologies. It's a full-stack web application built with React/TypeScript frontend, Express.js backend, and PostgreSQL database with Drizzle ORM. The application provides secure business banking features including account management, transactions, invoice payments, and KYC/AML compliance.
+This is FinTech - a professional fintech application for business customers with enhanced UX and modern technologies. It's a full-stack web application built with React/TypeScript frontend, Express.js backend, and PostgreSQL database with Drizzle ORM. The application provides secure business banking features including account management, transactions, invoice payments, and KYC/AML compliance.
 
 # User Preferences
 

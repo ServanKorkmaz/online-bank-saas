@@ -78,13 +78,11 @@ export default function Landing() {
             </div>
             
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6">
-              Norges nye
-              <span className="text-primary"> bedriftsbank</span>
+              <span className="text-primary">FinTech</span>
             </h1>
             
             <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-8">
-              Sikker, moderne og effektiv banking for norske bedrifter. Med BankID-innlogging, 
-              PSD2-integrering og automatisert fakturahåndtering.
+              Norsk fintech-løsning bygget for fremtiden
             </p>
 
             {bankIdStatus?.demoMode && (
@@ -197,10 +195,10 @@ export default function Landing() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Alt du trenger for bedriftsbanking
+            Komplett fintech-løsning
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Inspirert av Revolut, bygget for norske bedrifter med full regelverksetterlevelse
+            Moderne teknologi og norsk kvalitet
           </p>
         </div>
 
