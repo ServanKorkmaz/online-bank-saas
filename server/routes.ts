@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { setupBankIDAuth, isBankIDAuthenticated, BANKID_DEMO_MODE, logBankIDAttempt } from "./bankid-auth";
+import { marketService } from "./market-service";
 import { insertTransactionSchema, insertInvoiceSchema, insertCompanySchema } from "@shared/schema";
 import { z } from "zod";
 import rateLimit from "express-rate-limit";
@@ -360,6 +361,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to create account" });
     }
   });
+
+  // Market data routes
+  app.get("/api/market/overview", isAnyAuthenticated, async (req, res) => {
+    try {
+      const marketData = await marketService.getMarketDataFromDB();
+      res.json(marketData.slice(0, 20)); // Return top 20 stocks
+    } catch (error) {
+      console.error("Error fetching market overview:", error);
+      res.status(500).json({ message: "Failed to fetch market data" });
+    }
+  });
+
+  app.get("/api/market/watchlist", isAnyAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims?.sub || req.user.id;
+      const watchedAssets = await marketService.getUserWatchedAssets(userId);
+      res.json(watchedAssets);
+    } catch (error) {
+      console.error("Error fetching watchlist:", error);
+      res.status(500).json({ message: "Failed to fetch watchlist" });
+    }
+  });
+
+  app.post("/api/market/watch", isAnyAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims?.sub || req.user.id;
+      const { symbol, isFavorite } = req.body;
+      
+      await marketService.addWatchedAsset(userId, symbol, isFavorite);
+      res.json({ success: true, message: "Asset added to watchlist" });
+    } catch (error) {
+      console.error("Error adding to watchlist:", error);
+      res.status(500).json({ message: "Failed to add to watchlist" });
+    }
+  });
+
+  app.post("/api/market/toggle-favorite", isAnyAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims?.sub || req.user.id;
+      const { symbol } = req.body;
+      
+      await marketService.toggleFavorite(userId, symbol);
+      res.json({ success: true, message: "Favorite status updated" });
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+      res.status(500).json({ message: "Failed to update favorite status" });
+    }
+  });
+
+  app.delete("/api/market/watch/:symbol", isAnyAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims?.sub || req.user.id;
+      const { symbol } = req.params;
+      
+      await marketService.removeWatchedAsset(userId, symbol);
+      res.json({ success: true, message: "Asset removed from watchlist" });
+    } catch (error) {
+      console.error("Error removing from watchlist:", error);
+      res.status(500).json({ message: "Failed to remove from watchlist" });
+    }
+  });
+
+  app.get("/api/market/quote/:symbol", isAnyAuthenticated, async (req, res) => {
+    try {
+      const { symbol } = req.params;
+      await marketService.updateMarketData(symbol);
+      const data = await marketService.getMarketDataFromDB([symbol]);
+      
+      if (data.length === 0) {
+        return res.status(404).json({ message: "Stock not found" });
+      }
+      
+      res.json(data[0]);
+    } catch (error) {
+      console.error("Error fetching quote:", error);
+      res.status(500).json({ message: "Failed to fetch quote" });
+    }
+  });
+
+  // Initialize Norwegian stocks on startup
+  marketService.initializeNorwegianStocks().catch(console.error);
 
   const httpServer = createServer(app);
   return httpServer;
