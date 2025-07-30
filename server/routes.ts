@@ -38,8 +38,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }));
   app.use('/api', apiLimiter);
 
-  // Setup both authentication systems
-  await setupAuth(app);
+  // Setup authentication systems
+  try {
+    await setupAuth(app);
+  } catch (error) {
+    console.warn("Replit Auth setup failed, continuing with BankID only:", (error as Error).message);
+  }
   await setupBankIDAuth(app);
 
   // Helper function to check if user is authenticated by either method
