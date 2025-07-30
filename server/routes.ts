@@ -399,6 +399,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Live market data by exchange
+  app.get('/api/market/live/:exchange', isAnyAuthenticated, async (req, res) => {
+    try {
+      const { exchange } = req.params;
+      const marketData = await marketService.getMarketDataByExchange(exchange);
+      res.json(marketData);
+    } catch (error) {
+      console.error("Error fetching live market data:", error);
+      res.status(500).json({ message: "Failed to fetch live market data" });
+    }
+  });
+
   app.get("/api/market/watchlist", isAnyAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims?.sub || req.user.id;
@@ -407,6 +419,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching watchlist:", error);
       res.status(500).json({ message: "Failed to fetch watchlist" });
+    }
+  });
+
+  app.post("/api/market/watchlist", isAnyAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims?.sub || req.user.id;
+      const { symbol, exchange, name, assetType, region } = req.body;
+      
+      await marketService.addWatchedAsset(userId, symbol, false, {
+        exchange,
+        name,
+        assetType,
+        region
+      });
+      res.json({ success: true, message: "Asset added to watchlist" });
+    } catch (error) {
+      console.error("Error adding to watchlist:", error);
+      res.status(500).json({ message: "Failed to add to watchlist" });
     }
   });
 
@@ -433,6 +463,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error toggling favorite:", error);
       res.status(500).json({ message: "Failed to update favorite status" });
+    }
+  });
+
+  app.delete("/api/market/watchlist/:symbol", isAnyAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims?.sub || req.user.id;
+      const { symbol } = req.params;
+      
+      await marketService.removeWatchedAsset(userId, symbol);
+      res.json({ success: true, message: "Asset removed from watchlist" });
+    } catch (error) {
+      console.error("Error removing from watchlist:", error);
+      res.status(500).json({ message: "Failed to remove from watchlist" });
     }
   });
 

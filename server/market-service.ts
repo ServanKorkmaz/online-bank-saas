@@ -42,19 +42,72 @@ interface FinnhubNews {
   url: string;
 }
 
-// Popular Norwegian stocks for initial data
-const NORWEGIAN_STOCKS = [
-  { symbol: "EQNR.OL", name: "Equinor ASA", sector: "Energy" },
-  { symbol: "DNB.OL", name: "DNB Bank ASA", sector: "Financial Services" },
-  { symbol: "TEL.OL", name: "Telenor ASA", sector: "Telecommunications" },
-  { symbol: "MOWI.OL", name: "Mowi ASA", sector: "Food & Beverages" },
-  { symbol: "NHY.OL", name: "Norsk Hydro ASA", sector: "Basic Materials" },
-  { symbol: "YAR.OL", name: "Yara International ASA", sector: "Basic Materials" },
-  { symbol: "ORKLA.OL", name: "Orkla ASA", sector: "Consumer Goods" },
-  { symbol: "STL.OL", name: "Statoil ASA", sector: "Energy" },
-  { symbol: "SALM.OL", name: "SalMar ASA", sector: "Food & Beverages" },
-  { symbol: "XXL.OL", name: "XXL ASA", sector: "Retail" },
-];
+// Global stock exchanges and popular stocks
+const EXCHANGE_STOCKS = {
+  "OL": [ // Oslo Børs
+    { symbol: "EQNR.OL", name: "Equinor ASA", sector: "Energy" },
+    { symbol: "DNB.OL", name: "DNB Bank ASA", sector: "Financial Services" },
+    { symbol: "TEL.OL", name: "Telenor ASA", sector: "Telecommunications" },
+    { symbol: "MOWI.OL", name: "Mowi ASA", sector: "Food & Beverages" },
+    { symbol: "NHY.OL", name: "Norsk Hydro ASA", sector: "Basic Materials" },
+    { symbol: "YAR.OL", name: "Yara International ASA", sector: "Basic Materials" },
+    { symbol: "ORKLA.OL", name: "Orkla ASA", sector: "Consumer Goods" },
+    { symbol: "STL.OL", name: "Statoil ASA", sector: "Energy" },
+  ],
+  "US": [ // US Exchanges (NASDAQ/NYSE)
+    { symbol: "AAPL", name: "Apple Inc.", sector: "Technology" },
+    { symbol: "MSFT", name: "Microsoft Corporation", sector: "Technology" },
+    { symbol: "GOOGL", name: "Alphabet Inc.", sector: "Technology" },
+    { symbol: "AMZN", name: "Amazon.com Inc.", sector: "Consumer Discretionary" },
+    { symbol: "TSLA", name: "Tesla Inc.", sector: "Consumer Discretionary" },
+    { symbol: "META", name: "Meta Platforms Inc.", sector: "Technology" },
+    { symbol: "JPM", name: "JPMorgan Chase & Co.", sector: "Financial Services" },
+    { symbol: "JNJ", name: "Johnson & Johnson", sector: "Healthcare" },
+  ],
+  "L": [ // London Stock Exchange
+    { symbol: "SHEL.L", name: "Shell plc", sector: "Energy" },
+    { symbol: "AZN.L", name: "AstraZeneca PLC", sector: "Healthcare" },
+    { symbol: "ULVR.L", name: "Unilever PLC", sector: "Consumer Goods" },
+    { symbol: "LSEG.L", name: "London Stock Exchange Group", sector: "Financial Services" },
+    { symbol: "RIO.L", name: "Rio Tinto Group", sector: "Basic Materials" },
+    { symbol: "BP.L", name: "BP p.l.c.", sector: "Energy" },
+  ],
+  "DE": [ // Frankfurt Stock Exchange
+    { symbol: "SAP.DE", name: "SAP SE", sector: "Technology" },
+    { symbol: "ASME.DE", name: "ASML Holding N.V.", sector: "Technology" },
+    { symbol: "SIE.DE", name: "Siemens AG", sector: "Industrials" },
+    { symbol: "ALV.DE", name: "Allianz SE", sector: "Financial Services" },
+    { symbol: "DTE.DE", name: "Deutsche Telekom AG", sector: "Telecommunications" },
+    { symbol: "BAS.DE", name: "BASF SE", sector: "Basic Materials" },
+  ],
+  "HK": [ // Hong Kong Stock Exchange
+    { symbol: "0700.HK", name: "Tencent Holdings Ltd.", sector: "Technology" },
+    { symbol: "9988.HK", name: "Alibaba Group Holding Ltd.", sector: "Technology" },
+    { symbol: "0005.HK", name: "HSBC Holdings plc", sector: "Financial Services" },
+    { symbol: "1299.HK", name: "AIA Group Ltd.", sector: "Financial Services" },
+    { symbol: "2318.HK", name: "Ping An Insurance", sector: "Financial Services" },
+    { symbol: "3690.HK", name: "Meituan", sector: "Consumer Discretionary" },
+  ],
+  "T": [ // Tokyo Stock Exchange
+    { symbol: "7203.T", name: "Toyota Motor Corp", sector: "Consumer Discretionary" },
+    { symbol: "6758.T", name: "Sony Group Corp", sector: "Technology" },
+    { symbol: "9984.T", name: "SoftBank Group Corp", sector: "Technology" },
+    { symbol: "8306.T", name: "Mitsubishi UFJ Financial Group", sector: "Financial Services" },
+    { symbol: "6861.T", name: "Keyence Corp", sector: "Technology" },
+    { symbol: "4063.T", name: "Shin-Etsu Chemical Co", sector: "Basic Materials" },
+  ],
+  "ST": [ // Stockholm Stock Exchange
+    { symbol: "VOLV-B.ST", name: "Volvo AB", sector: "Industrials" },
+    { symbol: "ERICB.ST", name: "Telefonaktiebolaget LM Ericsson", sector: "Technology" },
+    { symbol: "ATLAS-B.ST", name: "Atlas Copco AB", sector: "Industrials" },
+    { symbol: "HEXA-B.ST", name: "Hexagon AB", sector: "Technology" },
+    { symbol: "SSAB-A.ST", name: "SSAB AB", sector: "Basic Materials" },
+    { symbol: "SKF-B.ST", name: "SKF AB", sector: "Industrials" },
+  ]
+};
+
+// For backward compatibility
+const NORWEGIAN_STOCKS = EXCHANGE_STOCKS["OL"];
 
 export class MarketDataService {
   private apiKey: string;
@@ -127,12 +180,15 @@ export class MarketDataService {
       ]);
 
       const sparklineData = this.generateSparklineData(quote.c, quote.d);
-      const norwegianStock = NORWEGIAN_STOCKS.find(stock => stock.symbol === symbol);
+      // Find stock info from any exchange
+      const stockInfo = Object.values(EXCHANGE_STOCKS)
+        .flat()
+        .find(stock => stock.symbol === symbol);
 
       await db.insert(marketData).values({
         symbol,
-        name: profile?.name || norwegianStock?.name || symbol,
-        exchange: profile?.exchange || "OL",
+        name: profile?.name || stockInfo?.name || symbol,
+        exchange: profile?.exchange || symbol.split('.')[1] || "US",
         price: quote.c.toString(),
         change: quote.d.toString(),
         changePercent: quote.dp.toString(),
@@ -141,8 +197,8 @@ export class MarketDataService {
         previousClose: quote.pc.toString(),
         dayHigh: quote.h.toString(),
         dayLow: quote.l.toString(),
-        currency: profile?.currency || "NOK",
-        sector: norwegianStock?.sector || profile?.finnhubIndustry || "Unknown",
+        currency: profile?.currency || (symbol.includes(".OL") ? "NOK" : "USD"),
+        sector: stockInfo?.sector || profile?.finnhubIndustry || "Unknown",
         sparklineData: sparklineData,
       }).onConflictDoUpdate({
         target: marketData.symbol,
@@ -189,6 +245,57 @@ export class MarketDataService {
     return db.select().from(marketData).orderBy(desc(marketData.lastUpdated));
   }
 
+  async getMarketDataByExchange(exchange: string) {
+    const exchangeStocks = EXCHANGE_STOCKS[exchange as keyof typeof EXCHANGE_STOCKS];
+    
+    if (!exchangeStocks) {
+      throw new Error(`Unsupported exchange: ${exchange}`);
+    }
+
+    // First ensure we have fresh data for this exchange
+    await this.initializeExchangeData(exchange);
+    
+    // Get all symbols for this exchange
+    const symbols = exchangeStocks.map(stock => stock.symbol);
+    
+    return await this.getMarketDataFromDB(symbols);
+  }
+
+  async initializeExchangeData(exchange: string): Promise<void> {
+    const exchangeStocks = EXCHANGE_STOCKS[exchange as keyof typeof EXCHANGE_STOCKS];
+    
+    if (!exchangeStocks) {
+      console.warn(`No stock data defined for exchange: ${exchange}`);
+      return;
+    }
+
+    console.log(`Initializing ${exchange} exchange data...`);
+    
+    for (const stock of exchangeStocks) {
+      try {
+        // Check if we have recent data (less than 5 minutes old)
+        const existingData = await db.select()
+          .from(marketData)
+          .where(eq(marketData.symbol, stock.symbol))
+          .limit(1);
+        
+        const shouldUpdate = !existingData[0] || 
+          (new Date().getTime() - new Date(existingData[0].lastUpdated!).getTime()) > 5 * 60 * 1000;
+        
+        if (shouldUpdate) {
+          await this.updateMarketData(stock.symbol);
+          // Rate limiting - space out API calls
+          await new Promise(resolve => setTimeout(resolve, 1100));
+        }
+      } catch (error) {
+        console.error(`Failed to initialize ${stock.symbol} on ${exchange}:`, error);
+        // Continue with other stocks even if one fails
+      }
+    }
+    
+    console.log(`${exchange} exchange data initialization completed`);
+  }
+
   async getUserWatchedAssets(userId: string) {
     return db.select({
       watchedAsset: watchedAssets,
@@ -200,7 +307,7 @@ export class MarketDataService {
     .orderBy(desc(watchedAssets.isFavorite), watchedAssets.createdAt);
   }
 
-  async addWatchedAsset(userId: string, symbol: string, isFavorite = false) {
+  async addWatchedAsset(userId: string, symbol: string, isFavorite = false, extraData?: { exchange?: string; name?: string; assetType?: string; region?: string }) {
     // Ensure we have market data for this symbol
     try {
       await this.updateMarketData(symbol);
@@ -211,8 +318,18 @@ export class MarketDataService {
     return db.insert(watchedAssets).values({
       userId,
       symbol,
+      name: extraData?.name,
+      exchange: extraData?.exchange,
       isFavorite,
-    }).onConflictDoNothing();
+      assetType: extraData?.assetType || "stock",
+      region: extraData?.region || "Global",
+    }).onConflictDoUpdate({
+      target: [watchedAssets.userId, watchedAssets.symbol],
+      set: {
+        isFavorite,
+        updatedAt: new Date(),
+      },
+    });
   }
 
   async toggleFavorite(userId: string, symbol: string) {
