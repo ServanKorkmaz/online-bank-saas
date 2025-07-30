@@ -1,0 +1,53 @@
+🚀 Jeg ønsker å bygge en sikker og profesjonell fintech-løsning for bedriftskunder – med inspirasjon fra Revolut – men med enda bedre UX og moderne teknologier.
+
+🔧 Bruk følgende teknologier og arkitektur:
+
+🖥️ Frontend:
+- Next.js (React-basert) med Typescript
+- TailwindCSS for profesjonell og responsiv styling
+- Bruk komponentstruktur og layout inspirert av Revolut UI, men med forbedret brukervennlighet
+- Dashboardside med kontoinformasjon, transaksjoner og fakturabetaling (dummy data foreløpig)
+
+🔐 Autentisering:
+- Bruk Supabase Auth eller NextAuth for brukerpålogging og token-beskyttelse
+- Lagre brukerdata i PostgreSQL (via Supabase eller Prisma)
+- Bruk JWT for sikker API-tilgang
+
+🔒 Backend (API):
+- Next.js API routes (eller Express om mer fleksibilitet trengs)
+- PostgreSQL database (Supabase eller lokal Docker)
+- Oppsett for PSD2-integrasjon via Tink eller Neonomics (dummy setup først)
+- Klargjør webhook-endepunkt for KYC/AML-callbacks fra SumSub
+
+📦 Integrasjoner (klargjør for fremtidig oppkobling):
+- 📄 SumSub for KYC/AML (bruk testkonto hvis mulig)
+- 🔁 Tink / Neonomics for PSD2 (mock eller API-plassholder)
+- 💳 Banking-as-a-Service API som Solarisbank eller Railsr (legg som placeholder)
+- 📊 Retool eller FlutterFlow for visuelle MVP-dashboards (API-integrasjon hvis mulig)
+
+🧪 Testing og sikkerhet:
+- Bruk miljøvariabler for API-nøkler (Replit secrets eller .env)
+- Implementer CSRF-beskyttelse, rate-limiting og inputvalidering
+- Lag mock-data for brukere og transaksjoner
+
+📱 Mobiltilpasset:
+- Bruk Tailwind breakpoints og komponenter for mobilvennlig layout
+- Fokus på tilgjengelighet (a11y)
+
+🧑‍💼 Adminpanel (valgfritt):
+- Adminside for å verifisere bedrifter manuelt
+- Brukerstatistikk, status, transaksjonsovervåking
+
+🎯 MVP-mål:
+- Fullt fungerende frontend med dummy innhold
+- Autentisering og brukerbeskyttelse
+- Strukturert og skalerbar kodebase for videreutvikling
+- Ekstremt profesjonell og sikker layout
+
+📦 Ekstra:
+- Del prosjektet som workspace på Replit
+- Bruk Github-integrasjon for versjonskontroll
+
+📣 Målet er en prototype jeg senere kan koble til ekte banking-tjenester, onboarding, og lansere som en betalt løsning for norske bedrifter.
+
+Start med grunnstruktur, så bygger jeg videre!
