@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { setupBankIDAuth, isBankIDAuthenticated, BANKID_DEMO_MODE, logBankIDAttempt } from "./bankid-auth";
+import { setupDevAuth, isDevAuthenticated } from "./dev-auth";
 import { marketService } from "./market-service";
 import { insertTransactionSchema, insertInvoiceSchema, insertCompanySchema } from "@shared/schema";
 import { z } from "zod";
@@ -40,13 +41,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Setup authentication systems
   try {
-    await setupAuth(app);
+    // Only setup Replit Auth if environment variables are properly configured
+    if (process.env.REPLIT_DOMAINS && process.env.REPL_ID && process.env.SESSION_SECRET) {
+      await setupAuth(app);
+      console.log("✅ Replit Auth configured successfully");
+    } else {
+      console.warn("⚠️ Replit Auth environment variables not set, skipping Replit Auth");
+    }
   } catch (error) {
-    console.warn("Replit Auth setup failed, continuing with BankID only:", (error as Error).message);
+    console.warn("⚠️ Replit Auth setup failed, continuing with BankID only:", (error as Error).message);
   }
+  
   await setupBankIDAuth(app);
+  console.log("✅ BankID Auth configured successfully");
+  
+  // Setup development authentication as fallback
+  setupDevAuth(app);
+  console.log("✅ Development Auth configured successfully");
 
-  // Helper function to check if user is authenticated by either method
+  // Helper function to check if user is authenticated by any method
   const isAnyAuthenticated: any = (req: any, res: any, next: any) => {
     // Check if user is authenticated via BankID
     if (req.user && req.user.personnummer) {
@@ -54,6 +67,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     // Check if user is authenticated via Replit Auth
     if (req.user && req.user.claims && req.user.claims.sub) {
+      return next();
+    }
+    // Check if user is authenticated via dev auth
+    if ((req.session as any)?.user) {
+      req.user = (req.session as any).user;
       return next();
     }
     return res.status(401).json({ message: "Authentication required" });
@@ -74,6 +92,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Replit Auth
         userId = req.user.claims.sub;
         authMethod = "Replit";
+      } else if (req.user.id) {
+        // Development auth
+        userId = req.user.id;
+        authMethod = "Development";
       } else {
         return res.status(401).json({ message: "Invalid authentication state" });
       }

@@ -40,6 +40,27 @@ export default function Landing() {
     window.location.href = "/api/login";
   };
 
+  const handleDevLogin = async () => {
+    const username = prompt("Skriv inn brukernavn for utvikler-innlogging:");
+    if (!username) return;
+
+    try {
+      const response = await fetch("/api/auth/dev-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username }),
+      });
+
+      if (response.ok) {
+        window.location.href = "/";
+      } else {
+        alert("Innlogging feilet");
+      }
+    } catch (error) {
+      alert("Innlogging feilet");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-gray-800">
       {/* Header */}
@@ -160,7 +181,7 @@ export default function Landing() {
               </ul>
 
               <Button 
-                onClick={handleReplitLogin}
+                onClick={handleDevLogin}
                 variant="outline"
                 className="w-full h-12 text-lg font-semibold"
               >
