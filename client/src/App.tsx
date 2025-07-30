@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import Markets from "@/pages/markets";
+import Transfers from "@/pages/transfers";
 import Admin from "@/pages/admin";
 import NotFound from "@/pages/not-found";
 
@@ -39,7 +40,13 @@ function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
           <svg className="mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 12l3-3 3 3 4-4"></path>
           </svg>
-          Markets
+          Markeder
+        </a>
+        <a href="/transfers" className="group flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200">
+          <svg className="mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16l-4-4m0 0l4-4m-4 4h18"></path>
+          </svg>
+          Overføringer
         </a>
         <a href="#" className="group flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200">
           <svg className="mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -229,6 +236,11 @@ function Router() {
           <Route path="/markets">
             <AuthenticatedLayout>
               <Markets />
+            </AuthenticatedLayout>
+          </Route>
+          <Route path="/transfers">
+            <AuthenticatedLayout>
+              <Transfers />
             </AuthenticatedLayout>
           </Route>
           <Route path="/admin">

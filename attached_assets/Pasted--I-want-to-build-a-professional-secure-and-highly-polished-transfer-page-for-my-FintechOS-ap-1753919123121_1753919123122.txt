@@ -1,0 +1,95 @@
+💸 I want to build a **professional, secure, and highly polished transfer page** for my FintechOS app – at the same level of usability and trust as DNB, Nordea, or Sbanken.
+
+🎯 Goal:
+Create a full-featured transfer page that lets users choose between:
+1. **Transfer within Norway**
+2. **Transfer to abroad (International)**
+
+Each flow should reflect real-world Norwegian banking standards (e.g., IBAN, KID, BIC/SWIFT, recipient info, etc.).
+
+---
+
+🧩 Core Features:
+
+🔘 Step 1: Transfer Type Selection
+- Radio buttons or tabs: `Norway` / `International`
+
+---
+
+### 🇳🇴 Domestic (Norway) Transfer Form:
+- Recipient name
+- Account number (11 digits)
+- KID or message (with validation)
+- Amount (NOK)
+- Date (default: today)
+- Optional: "Save recipient" toggle
+
+✔️ Validate:
+- Account number format (mod11 control check)
+- KID optional but validated if provided
+
+---
+
+### 🌍 International Transfer Form:
+- Recipient name
+- Country selector (dropdown)
+- IBAN or account number
+- BIC/SWIFT
+- Currency (EUR, USD, GBP, etc.)
+- Amount (in local or foreign currency)
+- Exchange rate (static or via API placeholder)
+- Message to recipient
+- Delivery time estimate (optional)
+
+✔️ Validate:
+- IBAN format
+- SWIFT/BIC format
+- Show currency conversion preview
+
+---
+
+🛡️ Security & Best Practices:
+- Include confirmation step before transfer is processed
+- Use masked inputs and real-time validation
+- Show warning for incorrect/unsupported formats
+- Add "Transfer summary" page before submit
+- Use secure form handling and CSRF protection
+
+---
+
+🎨 UI/UX Design Requirements:
+- Match Norwegian bank design conventions (clean, minimal, serious)
+- Use TailwindCSS or similar utility-first system
+- Add subtle animations (Framer Motion) to make transitions smooth
+- Include tooltips/icons for unclear fields (e.g., "What is BIC/SWIFT?")
+- Responsive layout (mobile + desktop)
+
+---
+
+🛠️ Tech Stack:
+- **Frontend:** React or Next.js (preferred)
+- **Styling:** TailwindCSS
+- **State:** React Hook Form or Zustand
+- **Backend API:** Placeholder/mock (you can integrate later with payment processor)
+- **Data validation:** Yup or Zod schema-based validation
+
+---
+
+📦 Deliverables:
+- Full transfer page UI with both domestic and international flows
+- All input fields validated with proper UX
+- Optional “Saved recipients” sidebar
+- Transfer summary modal or page before submission
+- Prepared to plug into real transfer APIs later
+
+---
+
+🧪 Extra:
+- Add dark mode switch
+- Use mock exchange rate API (like fixer.io or static rates)
+- Add “Favorite transfer” or “Frequent recipient” memory for better UX
+
+---
+
+✅ Outcome:
+A modern, secure, and enterprise-quality money transfer page that users will recognize and trust – identical in feel and function to what they'd find in a Norwegian bank app.
