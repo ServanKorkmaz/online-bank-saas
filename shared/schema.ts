@@ -115,9 +115,57 @@ export const psd2Logs = pgTable("psd2_logs", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Stock and fund tracking tables
+export const watchedAssets = pgTable("watched_assets", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id),
+  symbol: varchar("symbol", { length: 20 }).notNull(), // e.g., EQNR.OL, AAPL
+  name: varchar("name", { length: 255 }), // Company/fund name
+  exchange: varchar("exchange", { length: 10 }), // OL, NASDAQ, etc.
+  assetType: varchar("asset_type").default("stock"), // stock, fund, crypto
+  region: varchar("region", { length: 5 }).default("NO"), // NO, US, EU
+  isFavorite: boolean("is_favorite").default(false),
+  alertPrice: decimal("alert_price", { precision: 15, scale: 4 }),
+  alertType: varchar("alert_type"), // above, below
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const marketData = pgTable("market_data", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  symbol: varchar("symbol", { length: 20 }).notNull().unique(),
+  name: varchar("name", { length: 255 }),
+  exchange: varchar("exchange", { length: 10 }),
+  price: decimal("price", { precision: 15, scale: 4 }).notNull(),
+  change: decimal("change", { precision: 15, scale: 4 }),
+  changePercent: decimal("change_percent", { precision: 10, scale: 4 }),
+  volume: varchar("volume"),
+  marketCap: varchar("market_cap"),
+  previousClose: decimal("previous_close", { precision: 15, scale: 4 }),
+  dayHigh: decimal("day_high", { precision: 15, scale: 4 }),
+  dayLow: decimal("day_low", { precision: 15, scale: 4 }),
+  currency: varchar("currency", { length: 3 }).default("NOK"),
+  sector: varchar("sector", { length: 100 }),
+  lastUpdated: timestamp("last_updated").defaultNow(),
+  sparklineData: jsonb("sparkline_data"), // Array of price points for mini chart
+});
+
+export const marketNews = pgTable("market_news", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  headline: text("headline").notNull(),
+  summary: text("summary"),
+  url: varchar("url", { length: 500 }),
+  source: varchar("source", { length: 100 }),
+  relatedSymbols: text("related_symbols").array(), // ['EQNR.OL', 'DNB.OL']
+  sentiment: varchar("sentiment"), // positive, negative, neutral
+  publishedAt: timestamp("published_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Relations
 export const userCompanyRelations = relations(users, ({ many }) => ({
   companies: many(companies),
+  watchedAssets: many(watchedAssets),
 }));
 
 export const companyRelations = relations(companies, ({ many }) => ({
@@ -147,11 +195,21 @@ export const invoiceRelations = relations(invoices, ({ one }) => ({
   }),
 }));
 
+export const watchedAssetRelations = relations(watchedAssets, ({ one }) => ({
+  user: one(users, {
+    fields: [watchedAssets.userId],
+    references: [users.id],
+  }),
+}));
+
 // Insert schemas
 export const insertCompanySchema = createInsertSchema(companies).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertAccountSchema = createInsertSchema(accounts).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertTransactionSchema = createInsertSchema(transactions).omit({ id: true, createdAt: true });
 export const insertInvoiceSchema = createInsertSchema(invoices).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertWatchedAssetSchema = createInsertSchema(watchedAssets).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertMarketDataSchema = createInsertSchema(marketData).omit({ id: true, lastUpdated: true });
+export const insertMarketNewsSchema = createInsertSchema(marketNews).omit({ id: true, createdAt: true });
 
 // Types
 export type UpsertUser = typeof users.$inferInsert;
@@ -165,3 +223,9 @@ export type InsertTransaction = z.infer<typeof insertTransactionSchema>;
 export type Invoice = typeof invoices.$inferSelect;
 export type InsertInvoice = z.infer<typeof insertInvoiceSchema>;
 export type PSD2Log = typeof psd2Logs.$inferSelect;
+export type WatchedAsset = typeof watchedAssets.$inferSelect;
+export type InsertWatchedAsset = z.infer<typeof insertWatchedAssetSchema>;
+export type MarketData = typeof marketData.$inferSelect;
+export type InsertMarketData = z.infer<typeof insertMarketDataSchema>;
+export type MarketNews = typeof marketNews.$inferSelect;
+export type InsertMarketNews = z.infer<typeof insertMarketNewsSchema>;

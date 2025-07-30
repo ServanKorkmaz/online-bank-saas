@@ -1,0 +1,79 @@
+📈 I want to extend my FintechOS app with a **professional-grade stock and fund tracking system** that:
+- Shows **live market data** (quotes, changes, trends)
+- Allows users to **favorite specific stocks/funds**
+- Is beautifully designed, extremely intuitive, and **psychologically engaging**
+
+🎯 Purpose:
+Create a stock and mutual fund dashboard that makes users feel connected to the market. It must be **addictive to check daily**, like a mini Bloomberg terminal mixed with Revolut-style UX.
+
+---
+
+🧩 Core Features:
+- 📊 Live stock and fund prices (real-time or 15-min delayed)
+- 🔍 Search bar to find stocks (via name or ticker)
+- ⭐️ Favorite system (users can star and unstar assets)
+- 📈 Sparkline mini-charts showing performance over time
+- 🧠 Personalized feed: “Your Favorites Today”, “Biggest Movers”, “Trending Now”
+- 🌍 Show assets from multiple regions (US, EU, NO, etc.)
+
+---
+
+🧠 Psychology & Engagement:
+- Use subtle color gradients, motion (Framer Motion), and **gamified micro-interactions**
+- Highlight daily/weekly trends with positive reinforcement (“Your portfolio outperformed 65% of users today”)
+- Daily notification tile in UI: “Markets opened 6 min ago. 3 of your favorites are in green.”
+
+---
+
+🛠️ Technical Requirements:
+
+**Frontend:**
+- Built in **React or Next.js** (same stack as FintechOS)
+- Styled using **TailwindCSS**
+- Use **Framer Motion** for animations and engaging transitions
+- Modular layout for:
+  - Market overview
+  - Favorite assets
+  - Individual asset detail pages
+
+**Backend/Data:**
+- Mock data first using local JSON or Supabase
+- Later use public APIs like:
+  - Yahoo Finance (via RapidAPI)
+  - EOD Historical Data API
+  - Finnhub or Twelve Data (freemium)
+- Store user favorites in PostgreSQL (via Supabase or Replit DB)
+
+**Authentication & Personalization:**
+- Reuse existing **FintechOS login session**
+- Show personalized data per user (favorites, last viewed)
+- No need for buy/sell — tracking only
+
+---
+
+📦 MVP Features (Phase 1):
+- Stock/fund overview page with sample data
+- Favorite system (UI + local DB)
+- Asset detail view with chart and info
+- Mobile-responsive layout
+- Beautiful and minimal design
+
+---
+
+🧪 MVP Features (Phase 2 – optional):
+- Integration with real-time stock/fund API
+- Add “watchlist alerts” (price thresholds)
+- Weekly summary email or UI card
+
+---
+
+🧩 Integration:
+This module must be embedded into the main **FintechOS** dashboard.
+- Add a sidebar/menu item: “Markets”
+- Reuse existing auth and theme system
+- Data should be scoped to user session
+
+---
+
+✅ Result:
+A fully working, beautiful and addictive stock/fund dashboard for Norwegian fintech users. Simple, clean, and highly engaging. No trading functionality needed — tracking only.
