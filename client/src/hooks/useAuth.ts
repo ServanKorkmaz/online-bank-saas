@@ -1,8 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import type { User } from "@shared/schema";
 
-interface AuthUser extends User {
+export interface AuthUser extends User {
   company?: any;
+  authMethod?: string;
+  isBankIDAuth?: boolean;
+  personnummer?: string;
+  lastLogin?: Date;
 }
 
 export function useAuth() {

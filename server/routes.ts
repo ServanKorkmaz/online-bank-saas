@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupBankIDAuth, isBankIDAuthenticated, BANKID_DEMO_MODE, logBankIDAttempt } from "./bankid-auth";
 import { insertTransactionSchema, insertInvoiceSchema, insertCompanySchema } from "@shared/schema";
 import { z } from "zod";
 import rateLimit from "express-rate-limit";
@@ -36,13 +37,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }));
   app.use('/api', apiLimiter);
 
-  // Auth middleware
+  // Setup both authentication systems
   await setupAuth(app);
+  await setupBankIDAuth(app);
+
+  // Helper function to check if user is authenticated by either method
+  const isAnyAuthenticated: any = (req: any, res: any, next: any) => {
+    // Check if user is authenticated via BankID
+    if (req.user && req.user.personnummer) {
+      return next();
+    }
+    // Check if user is authenticated via Replit Auth
+    if (req.user && req.user.claims && req.user.claims.sub) {
+      return next();
+    }
+    return res.status(401).json({ message: "Authentication required" });
+  };
 
   // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  app.get('/api/auth/user', isAnyAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      let userId: string;
+      let authMethod: string;
+      
+      // Determine authentication method and user ID
+      if (req.user.personnummer) {
+        // BankID authentication
+        userId = req.user.personnummer;
+        authMethod = "BankID";
+      } else if (req.user.claims?.sub) {
+        // Replit Auth
+        userId = req.user.claims.sub;
+        authMethod = "Replit";
+      } else {
+        return res.status(401).json({ message: "Invalid authentication state" });
+      }
+
       const user = await storage.getUser(userId);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
@@ -54,6 +84,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({
         ...user,
         company,
+        authMethod,
+        isBankIDAuth: authMethod === "BankID",
+        personnummer: req.user.personnummer || null,
+        lastLogin: req.user.lastLogin || null,
       });
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -61,10 +95,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // BankID logout route
+  app.get('/api/auth/bankid/logout', (req, res) => {
+    req.logout(() => {
+      req.session.destroy(() => {
+        res.clearCookie('bankid-session');
+        res.redirect('/');
+      });
+    });
+  });
+
+  // BankID status route
+  app.get('/api/auth/bankid/status', (req, res) => {
+    res.json({
+      demoMode: BANKID_DEMO_MODE,
+      available: true,
+      configured: !!process.env.BANKID_CLIENT_ID || BANKID_DEMO_MODE,
+    });
+  });
+
   // Dashboard data route
-  app.get('/api/dashboard', isAuthenticated, async (req: any, res) => {
+  app.get('/api/dashboard', isAnyAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      // Get user ID from either authentication method
+      const userId = req.user.personnummer || req.user.claims?.sub;
       const company = await storage.getCompanyByUser(userId);
       
       if (!company) {

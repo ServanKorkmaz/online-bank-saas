@@ -1,0 +1,62 @@
+🛡️ I want to integrate **BankID login** exactly like Norwegian banks do, following official privacy and security standards.
+
+🎯 Objective:
+Build a secure authentication system for a Norwegian fintech platform, where users log in using **BankID** (via mobile or code device), just like DNB, Nordea, and other banks. The solution should follow **real-world practices**.
+
+---
+
+🔐 Key Features & Security Requirements:
+- Use **BankID Norge**, **Signicat**, or **Buypass** as the authentication provider
+- Redirect to official BankID login flow (mobile BankID preferred)
+- On successful login, receive and store only:
+  - Full name
+  - Personnummer (Norwegian ID)
+  - Timestamp, IP, and session data
+- **Do NOT store any passwords, OTPs, or BankID secrets**
+- Use secure cookies with `HttpOnly`, `SameSite=Strict`, and HTTPS
+- Must be **GDPR compliant**
+- Store user sessions with JWT or server-side session middleware
+
+---
+
+🧩 Tech Stack:
+- **Frontend:** React or Next.js (Tailwind preferred)
+- **Backend:** Node.js or Next.js API routes
+- **Database:** PostgreSQL or Supabase (for user and session info)
+- **Authentication:** OIDC/OpenID Connect or OAuth2 flow from chosen BankID provider
+- **Optional SDKs:** SumSub (for full KYC later), and Tink/Neonomics for account access
+
+---
+
+🧪 🔁 VERY IMPORTANT:
+⚠️ I need a **separate demo/sandbox environment** (admin mode or dev-only route) so I can test all BankID flows without real BankID credentials.
+
+Demo environment should include:
+- Pre-configured test users with mock personnummer
+- Test login buttons that simulate success/failure of BankID
+- Easy switching between real vs. demo mode (via `.env` or config flag)
+- Dummy dashboards to test UI and authenticated state
+
+---
+
+✅ MVP Features:
+1. "Log in with BankID" button on landing page
+2. Redirect to BankID login or simulate if in demo mode
+3. On success, store identity (name + personnummer) and create session
+4. Redirect to authenticated dashboard
+5. Provide logout functionality
+
+---
+
+🎯 Bonus:
+- First-time login should auto-register user
+- Add basic transaction/mock account data to dashboard
+- Create logs for login attempts (time, IP, method)
+- Keep codebase clean, scalable, and production-ready
+
+📦 Expected Result:
+- BankID-authenticated login flow
+- Full privacy compliance
+- Secure session handling
+- Personal demo environment for feature testing
+
