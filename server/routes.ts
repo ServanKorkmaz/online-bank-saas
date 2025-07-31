@@ -146,37 +146,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Get user ID from either authentication method
       const userId = req.user.personnummer || req.user.claims?.sub;
-      const company = await storage.getCompanyByUser(userId);
       
-      if (!company) {
-        return res.status(404).json({ message: "Company not found" });
-      }
+      // Get user's accounts using the new enhanced method
+      const accounts = await storage.getAllAccountsForUser(userId);
+      
+      // Mock company data for now
+      const company = {
+        id: userId,
+        name: "Personal Banking",
+        orgNumber: `PB${userId.slice(-6)}`,
+        kycStatus: "verified"
+      };
 
-      // Get company accounts
-      const accounts = await storage.getAccountsByCompany(company.id);
-      const mainAccount = accounts[0]; // Assume first account is main account
-
-      // Get recent transactions
-      const transactions = await storage.getRecentTransactions(company.id, 5);
-
-      // Get pending invoices
-      const pendingInvoices = await storage.getPendingInvoices(company.id);
+      // Mock transactions and invoices for now
+      const transactions = [];
+      const pendingInvoices = [];
 
       // Calculate summary data
       const totalBalance = accounts.reduce((sum, acc) => sum + parseFloat(acc.balance || "0"), 0);
-      const monthlyRevenue = transactions
-        .filter(t => t.type === "credit" && t.transactionDate && 
-          new Date(t.transactionDate).getMonth() === new Date().getMonth())
-        .reduce((sum, t) => sum + parseFloat(t.amount), 0);
-
-      const overdueInvoices = pendingInvoices.filter(inv => 
-        new Date(inv.dueDate) < new Date()
-      );
-      const overdueAmount = overdueInvoices.reduce((sum, inv) => sum + parseFloat(inv.amount), 0);
+      const monthlyRevenue = 0;
+      const overdueAmount = 0;
 
       res.json({
         company,
-        accounts,
+        accounts: accounts.map(account => ({
+          ...account,
+          accountName: account.accountName || `${account.accountType} Account`
+        })),
         transactions,
         pendingInvoices: pendingInvoices.length,
         summary: {

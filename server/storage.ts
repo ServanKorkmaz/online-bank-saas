@@ -258,7 +258,52 @@ export class DatabaseStorage implements IStorage {
 
   // Enhanced account operations for account management
   async getAllAccountsForUser(userId: string): Promise<Account[]> {
-    // Get user's company first
+    // For dev-test user ID, create/get accounts directly since it's not a valid UUID
+    if (userId === "dev-test") {
+      // Check if we have existing accounts for this user
+      const existingAccounts = await db
+        .select()
+        .from(accounts)
+        .where(eq(accounts.companyId, userId))
+        .orderBy(desc(accounts.createdAt));
+      
+      if (existingAccounts.length > 0) {
+        return existingAccounts;
+      }
+      
+      // Create some default accounts for demo
+      const sampleAccounts = [
+        {
+          companyId: userId,
+          accountNumber: "1234 56 12345",
+          accountType: "checking" as const,
+          balance: "25000.00",
+          currency: "NOK",
+          isActive: true
+        },
+        {
+          companyId: userId,
+          accountNumber: "1234 56 67890",
+          accountType: "savings" as const,
+          balance: "150000.00",
+          currency: "NOK",
+          isActive: true
+        }
+      ];
+
+      const createdAccounts = [];
+      for (const accountData of sampleAccounts) {
+        const [account] = await db
+          .insert(accounts)
+          .values(accountData)
+          .returning();
+        createdAccounts.push(account);
+      }
+      
+      return createdAccounts;
+    }
+
+    // For real user IDs, try to get company first
     const userCompanies = await db
       .select()
       .from(companies)
