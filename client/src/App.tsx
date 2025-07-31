@@ -9,6 +9,7 @@ import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import Markets from "@/pages/markets";
 import Transfers from "@/pages/transfers";
+import Accounts from "@/pages/accounts";
 import Admin from "@/pages/admin";
 import NotFound from "@/pages/not-found";
 
@@ -48,11 +49,11 @@ function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
           </svg>
           Overføringer
         </a>
-        <a href="#" className="group flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200">
+        <a href="/accounts" className="group flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200">
           <svg className="mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
           </svg>
-          Transaksjoner
+          Kontoer
         </a>
         <a href="#" className="group flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors duration-200">
           <svg className="mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -241,6 +242,11 @@ function Router() {
           <Route path="/transfers">
             <AuthenticatedLayout>
               <Transfers />
+            </AuthenticatedLayout>
+          </Route>
+          <Route path="/accounts">
+            <AuthenticatedLayout>
+              <Accounts />
             </AuthenticatedLayout>
           </Route>
           <Route path="/admin">

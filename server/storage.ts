@@ -37,6 +37,11 @@ export interface IStorage {
   createAccount(account: InsertAccount): Promise<Account>;
   updateAccountBalance(accountId: string, amount: string): Promise<Account>;
   
+  // Enhanced account operations
+  getAllAccountsForUser(userId: string): Promise<Account[]>;
+  createEnhancedAccount(userId: string, accountData: any): Promise<Account>;
+  getInterestHistory(accountId: string): Promise<any[]>;
+  
   // Transaction operations
   getTransactionsByAccount(accountId: string, limit?: number): Promise<Transaction[]>;
   createTransaction(transaction: InsertTransaction): Promise<Transaction>;
@@ -249,6 +254,99 @@ export class DatabaseStorage implements IStorage {
       })
       .returning();
     return log;
+  }
+
+  // Enhanced account operations for account management
+  async getAllAccountsForUser(userId: string): Promise<Account[]> {
+    // Get user's company first
+    const userCompanies = await db
+      .select()
+      .from(companies)
+      .where(eq(companies.id, userId));
+    
+    if (userCompanies.length === 0) {
+      // If no company exists for user, create a default one
+      const defaultCompany = await this.createCompany({
+        name: "Personal Banking",
+        orgNumber: `PB${Date.now()}`,
+        address: "Oslo, Norway",
+        city: "Oslo",
+        postalCode: "0150",
+        country: "NO",
+        kycStatus: "verified"
+      });
+      
+      return await db
+        .select()
+        .from(accounts)
+        .where(eq(accounts.companyId, defaultCompany.id))
+        .orderBy(desc(accounts.createdAt));
+    }
+    
+    return await db
+      .select()
+      .from(accounts)
+      .where(eq(accounts.companyId, userCompanies[0].id))
+      .orderBy(desc(accounts.createdAt));
+  }
+
+  async createEnhancedAccount(userId: string, accountData: any): Promise<Account> {
+    // Get or create user's company
+    let userCompanies = await db
+      .select()
+      .from(companies)
+      .where(eq(companies.id, userId));
+    
+    let companyId = userId;
+    if (userCompanies.length === 0) {
+      const defaultCompany = await this.createCompany({
+        name: "Personal Banking",
+        orgNumber: `PB${Date.now()}`,
+        address: "Oslo, Norway",
+        city: "Oslo",
+        postalCode: "0150",
+        country: "NO",
+        kycStatus: "verified"
+      });
+      companyId = defaultCompany.id;
+    } else {
+      companyId = userCompanies[0].id;
+    }
+
+    // Generate account number (Norwegian format: 4 digits + 2 digits + 5 digits)
+    const bankCode = "1234";
+    const branchCode = "56";
+    const accountSeq = Math.floor(Math.random() * 90000) + 10000;
+    const accountNumber = `${bankCode} ${branchCode} ${accountSeq}`;
+
+    // Calculate next interest payout date (monthly for savings, at maturity for fixed)
+    let nextInterestPayout = null;
+    if (accountData.accountType === "savings") {
+      const nextMonth = new Date();
+      nextMonth.setMonth(nextMonth.getMonth() + 1);
+      nextMonth.setDate(1); // First day of next month
+      nextInterestPayout = nextMonth;
+    } else if (accountData.maturityDate) {
+      nextInterestPayout = new Date(accountData.maturityDate);
+    }
+
+    // For now, create with limited fields until schema is updated
+    const account = await this.createAccount({
+      companyId,
+      accountNumber,
+      accountType: accountData.accountType,
+      balance: accountData.initialDeposit || "0.00",
+      currency: "NOK",
+      isActive: true
+    });
+
+    return account;
+  }
+
+  async getInterestHistory(accountId: string): Promise<any[]> {
+    // This would typically fetch from interestHistory table
+    // For now, return empty array as we haven't implemented interest calculations yet
+    return [];
   }
 }
 

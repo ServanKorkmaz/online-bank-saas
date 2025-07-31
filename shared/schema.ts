@@ -55,17 +55,43 @@ export const companies = pgTable("companies", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Business accounts table
+// Enhanced accounts table for multiple account types
 export const accounts = pgTable("accounts", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
   companyId: uuid("company_id").references(() => companies.id),
   accountNumber: varchar("account_number", { length: 20 }).unique().notNull(),
-  accountType: varchar("account_type").default("business"), // business, savings
+  accountType: varchar("account_type").notNull(), // savings, fixed_deposit, everyday, tax_deduction
+  accountName: varchar("account_name", { length: 100 }).notNull(),
   balance: decimal("balance", { precision: 15, scale: 2 }).default("0.00"),
   currency: varchar("currency", { length: 3 }).default("NOK"),
+  interestRate: decimal("interest_rate", { precision: 5, scale: 4 }).default("0.0000"), // Annual interest rate
+  minimumBalance: decimal("minimum_balance", { precision: 15, scale: 2 }).default("0.00"),
+  
+  // Fixed deposit specific fields
+  fixedTermMonths: varchar("fixed_term_months"), // "3", "6", "12" for fixed deposits
+  maturityDate: timestamp("maturity_date"), // When fixed deposit matures
+  earlyWithdrawalPenalty: decimal("early_withdrawal_penalty", { precision: 5, scale: 4 }), // Penalty rate
+  
+  // Account conditions and metadata
+  conditions: jsonb("conditions"), // Account terms and conditions
+  nextInterestPayout: timestamp("next_interest_payout"), // Next interest calculation date
+  lastInterestPayout: timestamp("last_interest_payout"), // Last interest payment
+  totalInterestEarned: decimal("total_interest_earned", { precision: 15, scale: 2 }).default("0.00"),
+  
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Interest history table
+export const interestHistory = pgTable("interest_history", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  accountId: uuid("account_id").references(() => accounts.id),
+  amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
+  interestRate: decimal("interest_rate", { precision: 5, scale: 4 }).notNull(),
+  period: varchar("period", { length: 50 }).notNull(), // "January 2024", "Q1 2024"
+  paymentDate: timestamp("payment_date").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 // Transactions table
@@ -179,6 +205,14 @@ export const accountRelations = relations(accounts, ({ one, many }) => ({
     references: [companies.id],
   }),
   transactions: many(transactions),
+  interestHistory: many(interestHistory),
+}));
+
+export const interestHistoryRelations = relations(interestHistory, ({ one }) => ({
+  account: one(accounts, {
+    fields: [interestHistory.accountId],
+    references: [accounts.id],
+  }),
 }));
 
 export const transactionRelations = relations(transactions, ({ one }) => ({
@@ -205,6 +239,7 @@ export const watchedAssetRelations = relations(watchedAssets, ({ one }) => ({
 // Insert schemas
 export const insertCompanySchema = createInsertSchema(companies).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertAccountSchema = createInsertSchema(accounts).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertInterestHistorySchema = createInsertSchema(interestHistory).omit({ id: true, createdAt: true });
 export const insertTransactionSchema = createInsertSchema(transactions).omit({ id: true, createdAt: true });
 export const insertInvoiceSchema = createInsertSchema(invoices).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertWatchedAssetSchema = createInsertSchema(watchedAssets).omit({ id: true, createdAt: true, updatedAt: true });
@@ -214,10 +249,14 @@ export const insertMarketNewsSchema = createInsertSchema(marketNews).omit({ id: 
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
-export type Company = typeof companies.$inferSelect;
-export type InsertCompany = z.infer<typeof insertCompanySchema>;
+
+// Enhanced account types
 export type Account = typeof accounts.$inferSelect;
 export type InsertAccount = z.infer<typeof insertAccountSchema>;
+export type InterestHistory = typeof interestHistory.$inferSelect;
+export type InsertInterestHistory = typeof interestHistory.$inferInsert;
+export type Company = typeof companies.$inferSelect;
+export type InsertCompany = z.infer<typeof insertCompanySchema>;
 export type Transaction = typeof transactions.$inferSelect;
 export type InsertTransaction = z.infer<typeof insertTransactionSchema>;
 export type Invoice = typeof invoices.$inferSelect;

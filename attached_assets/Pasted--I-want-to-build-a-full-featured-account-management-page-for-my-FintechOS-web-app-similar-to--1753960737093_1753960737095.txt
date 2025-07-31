@@ -1,0 +1,95 @@
+🏦 I want to build a **full-featured account management page** for my FintechOS web app, similar to the experience in Norwegian banks like DNB, Sparebank 1, Nordea, or Sbanken.
+
+🎯 The goal is to:
+1. Allow the user to **create new accounts** of different types
+2. Show a **clean and professional overview of all their accounts**
+3. Include realistic **interest terms and account conditions** for each account type
+
+---
+
+🧩 Account Creation Page Features:
+
+Users should be able to create any of the following accounts:
+
+### ✅ 1. Regular Savings Account (`Sparekonto`)
+- Interest: ~1.5% p.a.
+- Withdrawals: Unlimited
+- Intended for saving with flexibility
+
+### ✅ 2. Fixed-Interest Deposits (`Fastrenteinnskudd`)
+- User chooses binding period:
+  - 3 months: ~3.25% interest
+  - 6 months: ~3.75% interest
+  - 12 months: ~4.2% interest
+- Funds locked during binding period
+- Early withdrawal penalty applies
+
+### ✅ 3. Everyday Account (`Brukskonto`)
+- 0% interest
+- Unlimited transactions
+- Primary for payments, salary, etc.
+
+### ✅ 4. Tax Deduction Account (`Skattetrekkskonto`)
+- 0% interest
+- Restricted access – only for tax withholding
+- Must be marked for compliance
+
+---
+
+📄 Each account type should:
+- Show the conditions before confirming creation
+- Include minimum deposit (e.g. 500 NOK for fixed-term deposits)
+- Include date of account creation and current balance
+- Save accounts in user’s session (or mock DB)
+
+---
+
+🖥️ Account Overview Page:
+- Display all accounts in a **dashboard-style view**
+- For each account, show:
+  - Account name & type
+  - Account number (mocked)
+  - Current balance
+  - Interest rate
+  - Date opened
+  - Next interest payout (if applicable)
+
+📊 Bonus:
+- Show **total balance across all accounts**
+- Allow user to **filter by account type**
+- Clicking an account should open a **detail view** with:
+  - Transaction history (mocked)
+  - Interest history (if savings/fixed deposit)
+  - Option to export as PDF/CSV
+
+---
+
+🎨 Design & UX Requirements:
+- Built with **React or Next.js**
+- Styled with **TailwindCSS**
+- Use **Framer Motion** for smooth transitions (e.g. when opening a new account)
+- Clean, modern UI — like DNB or Sbanken
+- Fully responsive design (mobile + desktop)
+- Accessible (a11y best practices)
+
+---
+
+🧠 Additional Logic:
+- Do not allow user to open multiple skattetrekkskonto unless explicitly confirmed
+- Fastrentekonto must show binding period end date
+- Optionally simulate interest accrual per month (mocked logic)
+- Generate mock account numbers for realism
+
+---
+
+🛠️ Tech Stack:
+- React/Next.js frontend
+- TailwindCSS UI
+- Zustand or Context API for account state
+- Supabase/PostgreSQL (optional) for persistent data
+- Export tools: jsPDF, CSV-stringify
+
+---
+
+✅ Final Result:
+A **fully working account creation + overview experience**, integrated in my FintechOS dashboard. It should feel professional, trustworthy, and functionally identical to what real Norwegian banks provide today.

@@ -512,6 +512,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize Norwegian stocks on startup
   marketService.initializeNorwegianStocks().catch(console.error);
 
+  // Enhanced Account Management Routes
+  app.get("/api/accounts/all", isAnyAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims?.sub || req.user.id;
+      const accounts = await storage.getAllAccountsForUser(userId);
+      
+      // Add mock data for missing fields until schema is updated
+      const enhancedAccounts = accounts.map(account => ({
+        ...account,
+        accountName: account.accountName || `${account.accountType} Account`,
+        interestRate: "0.0000",
+        minimumBalance: "0.00",
+        totalInterestEarned: "0.00",
+        nextInterestPayout: null,
+        lastInterestPayout: null,
+        conditions: null,
+        fixedTermMonths: null,
+        maturityDate: null
+      }));
+
+      res.json(enhancedAccounts);
+    } catch (error) {
+      console.error("Error fetching accounts:", error);
+      res.status(500).json({ message: "Failed to fetch accounts" });
+    }
+  });
+
+  app.post("/api/accounts/create", isAnyAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims?.sub || req.user.id;
+      const accountData = req.body;
+
+      const account = await storage.createEnhancedAccount(userId, accountData);
+      
+      // Add mock data for missing fields
+      const enhancedAccount = {
+        ...account,
+        accountName: accountData.accountName || `${accountData.accountType} Account`,
+        interestRate: accountData.interestRate || "0.0000",
+        minimumBalance: "0.00",
+        totalInterestEarned: "0.00",
+        nextInterestPayout: null,
+        lastInterestPayout: null,
+        conditions: accountData.conditions || null,
+        fixedTermMonths: accountData.fixedTermMonths || null,
+        maturityDate: accountData.maturityDate || null
+      };
+
+      res.json(enhancedAccount);
+    } catch (error) {
+      console.error("Error creating account:", error);
+      res.status(500).json({ message: "Failed to create account" });
+    }
+  });
+
+  app.get("/api/accounts/interest-history/:accountId", isAnyAuthenticated, async (req: any, res) => {
+    try {
+      const { accountId } = req.params;
+      const interestHistory = await storage.getInterestHistory(accountId);
+      res.json(interestHistory);
+    } catch (error) {
+      console.error("Error fetching interest history:", error);
+      res.status(500).json({ message: "Failed to fetch interest history" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
