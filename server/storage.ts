@@ -277,16 +277,24 @@ export class DatabaseStorage implements IStorage {
           companyId: userId,
           accountNumber: "1234 56 12345",
           accountType: "checking" as const,
+          accountName: "Daglig brukskonto",
           balance: "25000.00",
           currency: "NOK",
+          interestRate: "0.0000",
+          minimumBalance: "0.00",
+          totalInterestEarned: "0.00",
           isActive: true
         },
         {
           companyId: userId,
           accountNumber: "1234 56 67890",
           accountType: "savings" as const,
+          accountName: "Sparekonto",
           balance: "150000.00",
           currency: "NOK",
+          interestRate: "0.0150",
+          minimumBalance: "0.00",
+          totalInterestEarned: "0.00",
           isActive: true
         }
       ];
@@ -375,13 +383,20 @@ export class DatabaseStorage implements IStorage {
       nextInterestPayout = new Date(accountData.maturityDate);
     }
 
-    // For now, create with limited fields until schema is updated
+    // Create account with all required fields
     const account = await this.createAccount({
       companyId,
       accountNumber,
       accountType: accountData.accountType,
+      accountName: accountData.accountName || `${accountData.accountType} Account`,
       balance: accountData.initialDeposit || "0.00",
-      currency: "NOK",
+      currency: accountData.currency || "NOK",
+      interestRate: accountData.interestRate || "0.0000",
+      minimumBalance: "0.00",
+      totalInterestEarned: "0.00",
+      fixedTermMonths: accountData.fixedTermMonths || null,
+      maturityDate: accountData.maturityDate ? new Date(accountData.maturityDate) : null,
+      conditions: accountData.conditions || null,
       isActive: true
     });
 
