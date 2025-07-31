@@ -58,7 +58,7 @@ export const companies = pgTable("companies", {
 // Enhanced accounts table for multiple account types
 export const accounts = pgTable("accounts", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  companyId: uuid("company_id").references(() => companies.id),
+  companyId: varchar("company_id", { length: 255 }),
   accountNumber: varchar("account_number", { length: 20 }).unique().notNull(),
   accountType: varchar("account_type").notNull(), // savings, fixed_deposit, everyday, tax_deduction
   accountName: varchar("account_name", { length: 100 }).notNull(),
