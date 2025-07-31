@@ -186,7 +186,7 @@ export default function Accounts() {
         interestRate = accountType?.interestRate || 0;
       }
 
-      return await apiRequest("/api/accounts/create", "POST", {
+      const response = await apiRequest("POST", "/api/accounts/create", {
         accountType: data.accountType,
         accountName: data.accountName,
         initialDeposit: data.initialDeposit.toString(),
@@ -195,6 +195,7 @@ export default function Accounts() {
         maturityDate,
         conditions
       });
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/accounts/all"] });
