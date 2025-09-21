@@ -11,7 +11,6 @@ export default function Dashboard() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading, user } = useAuth();
 
-  // Redirect to login if not authenticated
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       toast({
@@ -45,7 +44,6 @@ export default function Dashboard() {
     retry: false,
   });
 
-  // Handle unauthorized errors at the endpoint level
   useEffect(() => {
     if (error && isUnauthorizedError(error as Error)) {
       toast({

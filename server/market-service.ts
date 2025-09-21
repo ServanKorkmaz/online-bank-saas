@@ -106,7 +106,6 @@ const EXCHANGE_STOCKS = {
   ]
 };
 
-// For backward compatibility
 const NORWEGIAN_STOCKS = EXCHANGE_STOCKS["OL"];
 
 export class MarketDataService {
@@ -180,7 +179,6 @@ export class MarketDataService {
       ]);
 
       const sparklineData = this.generateSparklineData(quote.c, quote.d);
-      // Find stock info from any exchange
       const stockInfo = Object.values(EXCHANGE_STOCKS)
         .flat()
         .find(stock => stock.symbol === symbol);
@@ -214,7 +212,6 @@ export class MarketDataService {
         },
       });
 
-      console.log(`Updated market data for ${symbol}: ${quote.c} ${profile?.currency || "NOK"}`);
     } catch (error) {
       console.error(`Failed to update market data for ${symbol}:`, error);
       throw error;
@@ -222,19 +219,14 @@ export class MarketDataService {
   }
 
   async initializeNorwegianStocks(): Promise<void> {
-    console.log("Initializing Norwegian stock data...");
-    
     for (const stock of NORWEGIAN_STOCKS) {
       try {
         await this.updateMarketData(stock.symbol);
-        // Add delay to respect rate limits (60 calls/minute = 1 call per second)
         await new Promise(resolve => setTimeout(resolve, 1100));
       } catch (error) {
         console.error(`Failed to initialize ${stock.symbol}:`, error);
       }
     }
-    
-    console.log("Norwegian stock data initialization completed");
   }
 
   async getMarketDataFromDB(symbols?: string[]) {
@@ -265,12 +257,9 @@ export class MarketDataService {
     const exchangeStocks = EXCHANGE_STOCKS[exchange as keyof typeof EXCHANGE_STOCKS];
     
     if (!exchangeStocks) {
-      console.warn(`No stock data defined for exchange: ${exchange}`);
       return;
     }
 
-    console.log(`Initializing ${exchange} exchange data...`);
-    
     for (const stock of exchangeStocks) {
       try {
         // Check if we have recent data (less than 5 minutes old)
@@ -284,16 +273,12 @@ export class MarketDataService {
         
         if (shouldUpdate) {
           await this.updateMarketData(stock.symbol);
-          // Rate limiting - space out API calls
           await new Promise(resolve => setTimeout(resolve, 1100));
         }
       } catch (error) {
         console.error(`Failed to initialize ${stock.symbol} on ${exchange}:`, error);
-        // Continue with other stocks even if one fails
       }
     }
-    
-    console.log(`${exchange} exchange data initialization completed`);
   }
 
   async getUserWatchedAssets(userId: string) {
