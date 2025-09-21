@@ -81,8 +81,6 @@ export class DatabaseStorage implements IStorage {
 
   // Company operations
   async getCompanyByUser(userId: string): Promise<Company | undefined> {
-    // In a real implementation, you'd have a user-company relationship table
-    // For now, we'll return the first company (simplified for MVP)
     const [company] = await db.select().from(companies).limit(1);
     return company;
   }
@@ -256,11 +254,8 @@ export class DatabaseStorage implements IStorage {
     return log;
   }
 
-  // Enhanced account operations for account management
   async getAllAccountsForUser(userId: string): Promise<Account[]> {
-    // For dev-test user ID, create/get accounts directly since it's not a valid UUID
     if (userId === "dev-test") {
-      // Check if we have existing accounts for this user
       const existingAccounts = await db
         .select()
         .from(accounts)
@@ -271,7 +266,6 @@ export class DatabaseStorage implements IStorage {
         return existingAccounts;
       }
       
-      // Create some default accounts for demo
       const sampleAccounts = [
         {
           companyId: userId,
@@ -310,15 +304,12 @@ export class DatabaseStorage implements IStorage {
       
       return createdAccounts;
     }
-
-    // For real user IDs, try to get company first
     const userCompanies = await db
       .select()
       .from(companies)
       .where(eq(companies.id, userId));
     
     if (userCompanies.length === 0) {
-      // If no company exists for user, create a default one
       const defaultCompany = await this.createCompany({
         name: "Personal Banking",
         orgNumber: `PB${Date.now()}`,
@@ -404,8 +395,6 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getInterestHistory(accountId: string): Promise<any[]> {
-    // This would typically fetch from interestHistory table
-    // For now, return empty array as we haven't implemented interest calculations yet
     return [];
   }
 }

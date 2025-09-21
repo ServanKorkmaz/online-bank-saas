@@ -20,20 +20,18 @@ import {
   Plus, 
   Wallet,
   TrendingUp,
-  Clock,
-  Calendar,
   Filter,
   Download,
-  Eye,
-  Banknote,
   Shield,
   AlertTriangle,
   CheckCircle2,
   PiggyBank,
   CreditCard,
+  Building,
+  Clock,
+  Calendar,
   Calculator,
-  FileText,
-  Building
+  FileText
 } from "lucide-react";
 
 // Account type definitions matching Norwegian banking standards

@@ -2,11 +2,10 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { setupBankIDAuth, isBankIDAuthenticated, BANKID_DEMO_MODE, logBankIDAttempt } from "./bankid-auth";
-import { setupDevAuth, isDevAuthenticated } from "./dev-auth";
+import { setupBankIDAuth, BANKID_DEMO_MODE } from "./bankid-auth";
+import { setupDevAuth } from "./dev-auth";
 import { marketService } from "./market-service";
-import { insertTransactionSchema, insertInvoiceSchema, insertCompanySchema } from "@shared/schema";
-import { z } from "zod";
+import { insertTransactionSchema } from "@shared/schema";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 
@@ -159,8 +158,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       // Mock transactions and invoices for now
-      const transactions = [];
-      const pendingInvoices = [];
+      const transactions: any[] = [];
+      const pendingInvoices: any[] = [];
 
       // Calculate summary data
       const totalBalance = accounts.reduce((sum, acc) => sum + parseFloat(acc.balance || "0"), 0);
@@ -373,6 +372,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         companyId: company.id,
         accountNumber: `NO${Math.random().toString().substr(2, 11)}`,
         accountType: "business",
+        accountName: "Business Account",
         balance: "0.00",
         currency: "NOK",
       });
