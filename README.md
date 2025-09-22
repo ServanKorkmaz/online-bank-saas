@@ -1,46 +1,14 @@
-# FintechOS 💳
+Demo Fintech Platform - Secure banking solution with BankID authentication, PSD2 integration, and real-time market data
 
-**FintechOS** is a Norwegian fintech SaaS demo platform with BankID integration, developer login, and a modern user-friendly UI.  
-Built to demonstrate secure authentication flows and banking standards in Norway.
+Key Functions:
 
----
-
-## Features
-- **BankID Login** – Standard Norwegian BankID authentication flow  
-- **Developer Login** – Quick access for testing and demo environments  
-- **Security & Compliance** – GDPR-ready, built on Norwegian banking standards  
-- **Modern UI** – Clean and professional design for financial solutions  
-
----
-
-## Tech Stack
-- **Frontend**: React (TypeScript), Tailwind CSS  
-- **Backend**: Node.js (TypeScript)  
-- **Auth**: BankID API (test mode)  
-- **Hosting**: Replit / Vercel  
-
----
-
-### Prerequisites
-- Node.js 18+  
-- BankID test credentials  
-
-### Installation
-```
-# Clone repository
-git clone https://github.com/username/fintechos-website.git
-
-# Navigate to project
-cd fintechos-website
-
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-- Roadmap
- Production-ready BankID integration
-
- Full multi-bank account support
-
- Expanded fintech modules (accounts, payments, transfers)
+Multi-Account Banking - Savings, checking, fixed deposits, tax deduction accounts
+BankID Authentication - Secure Norwegian identity verification
+PSD2 Integration - Direct bank connectivity via Tink/Neonomics APIs
+Smart Invoice Processing - KID number recognition and batch payments
+Real-time Market Data - Norwegian stocks (Oslo Børs) + international markets
+Financial Analytics - Cash flow analysis and transaction categorization
+KYC/AML Compliance - SumSub integration for identity verification
+Progressive Web App - Mobile-first responsive design
+Professional UI - Dark/light themes with shadcn/ui components
+Modern Stack - React + TypeScript + PostgreSQL + Drizzle ORM
